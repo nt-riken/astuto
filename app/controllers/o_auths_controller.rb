@@ -12,7 +12,7 @@ class OAuthsController < ApplicationController
     return if params[:reason] == 'user' and not @o_auth.is_enabled?
 
     # Generate random state + other query params
-    token_state = "#{params[:reason]}|#{Devise.friendly_token(30)}"
+    token_state = "#{params[:reason]}-#{Devise.friendly_token(30)}"
     session[:token_state] = token_state
     @o_auth.state = token_state
 
@@ -22,7 +22,7 @@ class OAuthsController < ApplicationController
   # [subdomain.]base_url/o_auths/:id/callback
   # Exchange authorization code for access token, fetch user info and sign in/up
   def callback
-    reason, token_state = params[:state].split('|')
+    reason, _, token_state = params[:state].partition('-')
 
     return unless session[:token_state] == params[:state]
 
